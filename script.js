@@ -10,24 +10,35 @@ const clearCompleted = document.querySelector('.clear-completed');
 
 let todos = [];
 
+footer.style.display = 'none'
+
 const updateCounter = () => {
     let activeTodos = todos.filter(item => item.completed === false);
     counter.innerText = activeTodos.length + ' items left';
 }
 updateCounter();
 
+function displayFooter() {
+    if (todos.length) {
+        footer.style.display = 'block'
+    } else {
+        footer.style.display = 'none'
+    }
+}
+
 function setArray(array) {
-    todos = array; 
+    todos = array;
     console.log('todos', todos);
     displayTodos(todos);
     updateCounter();
+    displayFooter();
 }
 
 function completeTodo(id) {
     const newArr = todos.map(item => {
-        if(item.id === id) {
+        if (item.id === id) {
             return {
-                ...item, 
+                ...item,
                 completed: !item.completed
             }
         }
@@ -39,7 +50,6 @@ function completeTodo(id) {
 function displayTodos(todos) {
     list.innerHTML = '';
     todos.forEach(item => {
-
         const li = document.createElement('li');
         const checkbox = document.createElement('input');
         const span = document.createElement('span');
@@ -52,7 +62,7 @@ function displayTodos(todos) {
             checkbox.removeAttribute("checked")
         }
 
-        if(checkbox.checked) {
+        if (checkbox.checked) {
             span.style.textDecoration = 'line-through'
         }
 
@@ -65,44 +75,61 @@ function displayTodos(todos) {
             completeTodo(item.id);
         })
 
+        span.addEventListener('click', () => {
+            span.setAttribute("contentEditable", true);
+            item.value = span.innerText;
+        })
+
         li.appendChild(checkbox);
         li.appendChild(span);
         li.appendChild(removeBtn);
         list.appendChild(li);
     })
 }
- 
+
 input.addEventListener('keydown', e => {
-    if(e.key === 'Enter' && e.target.value.trim().length !== 0) {
-        let newArr = [...todos, { 
-                value: e.target.value, 
-                completed: false, 
-                id: new Date().toISOString()
-            } 
+    if (e.key === 'Enter' && e.target.value.trim().length !== 0) {
+        let newArr = [...todos, {
+            value: e.target.value,
+            completed: false,
+            id: new Date().toISOString()
+        }
         ];
         setArray(newArr);
+
         e.target.value = '';
     }
 })
 
 list.addEventListener('click', e => {
-    if(e.target.className === 'delete') {
-        const filteredArray = todos.filter(todo => todo.id != e.target.parentElement.id );
+    if (e.target.className === 'delete') {
+        const filteredArray = todos.filter(todo => todo.id != e.target.parentElement.id);
         setArray(filteredArray);
     }
 })
 
 allCompletedBtn.addEventListener('click', () => {
-    allCompletedBtn.style.opacity = '0.9';
-    const newTodoList = todos.map(item => {
-        return {
-            ...item,
-            completed: true,
-        }
-    })
-    setArray(newTodoList);
-})
+    allCompletedBtn.style.opacity = '1'
+    if (todos.some(item => item.completed === false)) {
+        const newTodoList = todos.map(item => {
+            return {
+                ...item,
+                completed: true,
+            }
+        })
+        setArray(newTodoList);
+    } else {
+        allCompletedBtn.style.opacity = '0.3'
+        const newTodoList = todos.map(item => {
+            return {
+                ...item,
+                completed: false,
+            }
+        })
+        setArray(newTodoList);
+    }
 
+})
 
 completedBtn.addEventListener('click', () => {
     let newArr = todos.filter(item => item.completed === true);
