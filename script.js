@@ -113,7 +113,6 @@ activeBtn.addEventListener('click', () => {
     displayTodos(newArr);
 })
 allBtn.addEventListener('click', () => {
-
     setArray(todos)
 })
 clearCompleted.addEventListener('click', () => {
