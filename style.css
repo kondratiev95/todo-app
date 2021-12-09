@@ -4,28 +4,56 @@
     box-sizing: border-box;
     font-family: Tahome, sans-serif;
     font-size: 20px;
+    transition: all 0.5s ease-in;
+}
+
+body {
+    background-color: rgb(233, 230, 227);
+}
+.container {
+    width: 550px;
+    background-color: white;
+    box-shadow: 10px 5px 5px rgb(202, 202, 202);
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: rosybrown;
+    font-size: 100px;
+    margin-top: 50px;
+    opacity: 0.7;
 }
 
 .form {
-    width: 300px;
-    margin: 50px auto 0 auto;
+    width: 550px;
+    margin: 10px auto 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
 }
 
 .form input {
     border: none;
-    padding: 5px;
-    font-size: 20px;
+    padding: 20px 0px 20px 5px;
+    font-size: 30px;
     outline: none;
+    font-style: italic;
+    color: rgb(168, 162, 162);
+    width: 400px;
 }
 
 .form i {
-    font-size: 20px;
+    display: block;
+    font-size: 30px;
     cursor: pointer;
-    opacity: 0.4;
+    opacity: 0.1;
+    text-align: left;
+    /* width: 20px; */
 }
 
 ul {
-    width: 300px;
+    width: 554px;
     margin: 0px auto;
     list-style-type: none;
 }
@@ -33,49 +61,76 @@ ul {
 li {
     display: flex;
     align-items: center;
-    width: 300px;
+    width: 550px;
+    justify-content: center;
+    padding: 20px 35px 20px 35px;
+    background-color: white;
+    border: 1px solid rgb(230, 224, 224);
+    transition: all 1s ease-in;
 }
 
 li span {
-    font-size: 18px;
+    font-size: 22px;
+    margin-right: auto;
 }
 
-li > *:not(list-child) {
+/* li > *:not(list-child) {
     margin-right: 70px;
 
-}
+} */
 
 li button {
     border: none;
     background: none;
-    font-size: 17px;
+    font-size: 20px;
     color: tomato;
     cursor: pointer;
     display: none;
     font-weight: bold;
+    text-align: end;
+}
+
+li input {
+    margin-right: 50px;
+    width: 30px;
+    height: 30px;
+    background: #fff;
+    border: 2px solid #e80cf0; /* Толщина, стиль, цвет рамки*/
+
 }
 
 li:hover button {
     display: block;
+    transition: all 1s ease;
 }
 .footer {
-    width: 300px;
-    margin: 10px auto 0 auto;
+    width: 550px;
+    display: flex;
+    padding: 15px 15px 15px 25px;
+    font-weight: 300;
+}
+.footer span {
+    font-size: 15px;
+    margin-right: 30px;
 }
 .footer button {
     border: none;
     background: none;
     font-size: 19px;
     cursor: pointer;
+    font-size: 15px;
+    margin-right: 20px;
 }
+/* .footer button:nth-child(3){
+    margin-right: auto;
+} */
 .footer button:focus {
     border: 1px solid black;
-    padding: 4px;
+    padding: 3px;
     border-radius: 5px;
 }
-
-.toggle-opacity {
-    opacity: 1;
+.clear-completed {
+    margin-left: 50px;
 }
 
 

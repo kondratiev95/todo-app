@@ -11,6 +11,7 @@ const clearCompleted = document.querySelector('.clear-completed');
 let todos = [];
 
 footer.style.display = 'none'
+allCompletedBtn.style.display = 'none'
 
 const updateCounter = () => {
     let activeTodos = todos.filter(item => item.completed === false);
@@ -20,9 +21,19 @@ updateCounter();
 
 function displayFooter() {
     if (todos.length) {
-        footer.style.display = 'block'
+        footer.style.display = 'block';
+        allCompletedBtn.style.display = 'block'
     } else {
-        footer.style.display = 'none'
+        footer.style.display = 'none';
+        allCompletedBtn.style.display = 'none'
+    }
+}
+
+function showClearBtn() {
+    if(todos.every(item => item.completed === false)) {
+        clearCompleted.style.display = 'none';
+    } else {
+        clearCompleted.style.display = 'inline-block';
     }
 }
 
@@ -32,6 +43,7 @@ function setArray(array) {
     displayTodos(todos);
     updateCounter();
     displayFooter();
+    showClearBtn();
 }
 
 function completeTodo(id) {
@@ -54,7 +66,7 @@ function displayTodos(todos) {
         const checkbox = document.createElement('input');
         const span = document.createElement('span');
         const removeBtn = document.createElement('button');
-        checkbox.setAttribute('type', 'checkbox');
+        checkbox.setAttribute('type', 'radio');
 
         if (item.completed) {
             checkbox.setAttribute("checked", true);
@@ -63,10 +75,11 @@ function displayTodos(todos) {
         }
 
         if (checkbox.checked) {
-            span.style.textDecoration = 'line-through'
+            span.style.textDecoration = 'line-through';
+            span.style.opacity = '0.3'
         }
 
-        li.setAttribute('id', item.id)
+        li.setAttribute('id', item.id);
         span.innerText = item.value;
         removeBtn.innerText = 'x';
         removeBtn.classList.add('delete');
