@@ -1,5 +1,5 @@
-const input = document.querySelector('.form input');
-const list = document.querySelector('ul');
+const input = document.querySelector('.form-input');
+const list = document.querySelector('.todo-list');
 const counter = document.querySelector('.counter');
 const footer = document.querySelector('.footer');
 const allBtn = document.querySelector('.all');
@@ -9,41 +9,16 @@ const allCompletedBtn = document.querySelector('.form i');
 const clearCompleted = document.querySelector('.clear-completed');
 
 let todos = [];
-
-footer.style.display = 'none'
-allCompletedBtn.style.display = 'none'
-
-const updateCounter = () => {
-    let activeTodos = todos.filter(item => item.completed === false);
-    counter.innerText = activeTodos.length + ' items left';
-}
-updateCounter();
-
-function displayFooter() {
-    if (todos.length) {
-        footer.style.display = 'block';
-        allCompletedBtn.style.display = 'block'
-    } else {
-        footer.style.display = 'none';
-        allCompletedBtn.style.display = 'none'
-    }
-}
-
-function showClearBtn() {
-    if(todos.every(item => item.completed === false)) {
-        clearCompleted.style.display = 'none';
-    } else {
-        clearCompleted.style.display = 'inline-block';
-    }
-}
+let isAllTodosCompleted;
 
 function setArray(array) {
     todos = array;
     console.log('todos', todos);
     displayTodos(todos);
     updateCounter();
-    displayFooter();
+    displayElements();
     showClearBtn();
+    isAllTodosCompleted = todos.every(todoItem => todoItem.completed);
 }
 
 function completeTodo(id) {
@@ -64,7 +39,7 @@ function displayTodos(todos) {
     todos.forEach(item => {
         const li = document.createElement('li');
         const checkbox = document.createElement('input');
-        const span = document.createElement('span');
+        const todoContent = document.createElement('span');
         const removeBtn = document.createElement('button');
         checkbox.setAttribute('type', 'radio');
 
@@ -75,26 +50,30 @@ function displayTodos(todos) {
         }
 
         if (checkbox.checked) {
-            span.style.textDecoration = 'line-through';
-            span.style.opacity = '0.3'
+            todoContent.style.textDecoration = 'line-through';
+            todoContent.style.opacity = '0.3'
         }
 
         li.setAttribute('id', item.id);
-        span.innerText = item.value;
-        removeBtn.innerText = 'x';
+        todoContent.innerText = item.value;
         removeBtn.classList.add('delete');
 
         checkbox.addEventListener('change', () => {
             completeTodo(item.id);
         })
 
-        span.addEventListener('click', () => {
-            span.setAttribute("contentEditable", true);
-            item.value = span.innerText;
+        todoContent.addEventListener('click', () => {
+            todoContent.setAttribute("contentEditable", true);
+            if(li.getAttribute('id') === item.id) item.value = span.innerText;
+        })
+
+        removeBtn.addEventListener('click', e => {
+                const filteredArray = todos.filter(todo => todo.id != e.target.parentElement.id);
+                setArray(filteredArray);
         })
 
         li.appendChild(checkbox);
-        li.appendChild(span);
+        li.appendChild(todoContent);
         li.appendChild(removeBtn);
         list.appendChild(li);
     })
@@ -114,34 +93,18 @@ input.addEventListener('keydown', e => {
     }
 })
 
-list.addEventListener('click', e => {
-    if (e.target.className === 'delete') {
-        const filteredArray = todos.filter(todo => todo.id != e.target.parentElement.id);
-        setArray(filteredArray);
-    }
-})
-
 allCompletedBtn.addEventListener('click', () => {
-    allCompletedBtn.style.opacity = '1'
-    if (todos.some(item => item.completed === false)) {
-        const newTodoList = todos.map(item => {
-            return {
-                ...item,
-                completed: true,
-            }
-        })
-        setArray(newTodoList);
+    if(isAllTodosCompleted) {
+        allCompletedBtn.classList.remove('dark-opacity');
+        setArray(todos.map(item => {
+            return { ...item, completed: false}
+        }))
     } else {
-        allCompletedBtn.style.opacity = '0.3'
-        const newTodoList = todos.map(item => {
-            return {
-                ...item,
-                completed: false,
-            }
-        })
-        setArray(newTodoList);
-    }
-
+        allCompletedBtn.classList.add('dark-opacity');
+        setArray(todos.map(item => {
+            return { ...item, completed: true}
+        }))
+    }     
 })
 
 completedBtn.addEventListener('click', () => {
@@ -158,3 +121,27 @@ allBtn.addEventListener('click', () => {
 clearCompleted.addEventListener('click', () => {
     setArray(todos.filter(item => item.completed !== true));
 })
+const updateCounter = () => {
+    let activeTodos = todos.filter(item => item.completed === false);
+    counter.textContent = activeTodos.length === 1 
+        ? `${activeTodos.length} item left` 
+        : `${activeTodos.length} items left`;
+}
+
+function displayElements() {
+    if (todos.length) {
+        footer.style.display = 'block';
+        allCompletedBtn.style.display = 'block'
+    } else {
+        footer.style.display = 'none';
+        allCompletedBtn.style.display = 'none'
+    }
+}
+
+function showClearBtn() {
+    if(todos.every(item => item.completed === false)) {
+        clearCompleted.style.display = 'none';
+    } else {
+        clearCompleted.style.display = 'inline-block';
+    }
+}
