@@ -10,15 +10,15 @@ const clearCompleted = document.querySelector('.clear-completed');
 
 let todos = [];
 let isAllTodosCompleted;
+let type = 'all';
 
 function setArray(array) {
     todos = array;
-    console.log('todos', todos);
-    displayTodos(todos);
+    displayTodos();
     updateCounter();
     displayElements();
     showClearBtn();
-    isAllTodosCompleted = todos.every(todoItem => todoItem.completed);
+    isAllTodosCompleted = todos.find(todoItem => todoItem.completed);
 }
 
 function completeTodo(id) {
@@ -34,14 +34,27 @@ function completeTodo(id) {
     setArray(newArr);
 }
 
-function displayTodos(todos) {
+function displayTodos() {
+
     list.innerHTML = '';
-    todos.forEach(item => {
+
+    const filteredTodos = filteredArray();
+    
+    filteredTodos.forEach(item => {
         const li = document.createElement('li');
         const checkbox = document.createElement('input');
         const todoContent = document.createElement('span');
         const removeBtn = document.createElement('button');
         checkbox.setAttribute('type', 'radio');
+
+        li.setAttribute('id', item.id);
+        todoContent.innerText = item.value;
+        removeBtn.classList.add('delete');
+
+        li.appendChild(checkbox);
+        li.appendChild(todoContent);
+        li.appendChild(removeBtn);
+        list.appendChild(li);
 
         if (item.completed) {
             checkbox.setAttribute("checked", true);
@@ -54,41 +67,30 @@ function displayTodos(todos) {
             todoContent.style.opacity = '0.3'
         }
 
-        li.setAttribute('id', item.id);
-        todoContent.innerText = item.value;
-        removeBtn.classList.add('delete');
-
         checkbox.addEventListener('change', () => {
             completeTodo(item.id);
         })
 
         todoContent.addEventListener('click', () => {
             todoContent.setAttribute("contentEditable", true);
-            if(li.getAttribute('id') === item.id) item.value = span.innerText;
         })
 
         removeBtn.addEventListener('click', e => {
                 const filteredArray = todos.filter(todo => todo.id != e.target.parentElement.id);
                 setArray(filteredArray);
         })
-
-        li.appendChild(checkbox);
-        li.appendChild(todoContent);
-        li.appendChild(removeBtn);
-        list.appendChild(li);
     })
 }
 
 input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && e.target.value.trim().length !== 0) {
         let newArr = [...todos, {
-            value: e.target.value,
-            completed: false,
-            id: new Date().toISOString()
-        }
+                value: e.target.value,
+                completed: false,
+                id: new Date().toISOString()
+            }
         ];
         setArray(newArr);
-
         e.target.value = '';
     }
 })
@@ -107,20 +109,37 @@ allCompletedBtn.addEventListener('click', () => {
     }     
 })
 
-completedBtn.addEventListener('click', () => {
-    let newArr = todos.filter(item => item.completed === true);
-    displayTodos(newArr);
+function filteredArray() {
+    if(type === 'completed') {
+        return todos.filter(item => item.completed === true);
+    } else if (type === 'active') {
+        return todos.filter(item => item.completed === false);
+    } else {
+        return todos;
+    }
+}
+
+completedBtn.addEventListener('click', e => {
+    setType(e.target.className);
 })
-activeBtn.addEventListener('click', () => {
-    let newArr = todos.filter(item => item.completed === false);
-    displayTodos(newArr);
+
+activeBtn.addEventListener('click', e => {
+    setType(e.target.className);
 })
-allBtn.addEventListener('click', () => {
-    setArray(todos)
+
+allBtn.addEventListener('click', e => {
+    setType(e.target.className);
 })
+
+function setType(newType) {
+    type = newType;
+    displayTodos();
+}
+
 clearCompleted.addEventListener('click', () => {
     setArray(todos.filter(item => item.completed !== true));
-})
+});
+
 const updateCounter = () => {
     let activeTodos = todos.filter(item => item.completed === false);
     counter.textContent = activeTodos.length === 1 
