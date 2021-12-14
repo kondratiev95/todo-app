@@ -1,4 +1,4 @@
-const input = document.querySelector('.form-input');
+const formInput = document.querySelector('.form-input');
 const list = document.querySelector('.todo-list');
 const counter = document.querySelector('.counter');
 const footer = document.querySelector('.footer');
@@ -7,19 +7,85 @@ const activeBtn = document.querySelector('.active');
 const completedBtn = document.querySelector('.completed');
 const allCompletedBtn = document.querySelector('.form i');
 const clearCompleted = document.querySelector('.clear-completed');
+const inputItem = document.createElement('input');
 
 let todos = [];
-let isAllTodosCompleted;
 let type = 'all';
+let isAllTodosCompleted = false;
 
-function setArray(array) {
+function setTodosArray(array) {
     todos = array;
-    displayTodos();
     updateCounter();
     displayElements();
     showClearBtn();
-    isAllTodosCompleted = todos.find(todoItem => todoItem.completed);
+    displayTodos();
+    isAllTodosCompleted = todos.every(todoItem => todoItem.completed)
+    checkIsAllCompleted()
 }
+
+function displayTodos() {
+    list.innerHTML = '';
+    const filteredTodos = filteredArray();
+    filteredTodos.forEach(item => {
+        const li = document.createElement('li');
+        const checkbox = document.createElement('input');
+        const todoContent = document.createElement('span');
+        const removeBtn = document.createElement('button');
+        const label = document.createElement('label');
+        label.htmlFor = item.id;
+        checkbox.setAttribute('type', 'checkbox');
+        checkbox.setAttribute('id', 'item-checkbox');
+        li.setAttribute('id', item.id);
+        li.setAttribute('class', 'list-item')
+        todoContent.innerText = item.value;
+        todoContent.setAttribute('class', 'todo-content')
+        removeBtn.classList.add('delete');
+        li.appendChild(checkbox);
+        li.appendChild(label);
+        li.appendChild(todoContent);
+        li.appendChild(removeBtn);
+        list.appendChild(li);
+
+        checkbox.addEventListener('change', () => {
+            completeTodo(item.id);
+        })
+
+        label.addEventListener('click', () => {
+            completeTodo(item.id);
+        })
+
+        if (item.completed) {
+            checkbox.setAttribute("checked", true);
+            todoContent.classList.add('toggle-checkbox');
+        } 
+        else {
+            checkbox.removeAttribute("checked")
+            todoContent.classList.remove('toggle-checkbox');
+        }
+
+        li.addEventListener('dblclick' , () => {
+            changeTodoContent(li, todoContent, item);
+        })
+
+        removeBtn.addEventListener('click', () => {
+            const filteredArray = todos.filter(todo => todo.id != item.id);
+            setTodosArray(filteredArray);
+        });
+    })
+}
+
+formInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.value.trim().length !== 0) {
+        let newArr = [...todos, {
+                value: e.target.value,
+                completed: false,
+                id: new Date().toISOString()
+            }
+        ];
+        setTodosArray(newArr);
+        e.target.value = '';
+    }
+})
 
 function completeTodo(id) {
     const newArr = todos.map(item => {
@@ -31,83 +97,8 @@ function completeTodo(id) {
         }
         else return item;
     })
-    setArray(newArr);
+    setTodosArray(newArr);
 }
-
-function displayTodos() {
-
-    list.innerHTML = '';
-
-    const filteredTodos = filteredArray();
-    
-    filteredTodos.forEach(item => {
-        const li = document.createElement('li');
-        const checkbox = document.createElement('input');
-        const todoContent = document.createElement('span');
-        const removeBtn = document.createElement('button');
-        checkbox.setAttribute('type', 'radio');
-
-        li.setAttribute('id', item.id);
-        todoContent.innerText = item.value;
-        removeBtn.classList.add('delete');
-
-        li.appendChild(checkbox);
-        li.appendChild(todoContent);
-        li.appendChild(removeBtn);
-        list.appendChild(li);
-
-        if (item.completed) {
-            checkbox.setAttribute("checked", true);
-        } else {
-            checkbox.removeAttribute("checked")
-        }
-
-        if (checkbox.checked) {
-            todoContent.style.textDecoration = 'line-through';
-            todoContent.style.opacity = '0.3'
-        }
-
-        checkbox.addEventListener('change', () => {
-            completeTodo(item.id);
-        })
-
-        todoContent.addEventListener('click', () => {
-            todoContent.setAttribute("contentEditable", true);
-        })
-
-        removeBtn.addEventListener('click', e => {
-                const filteredArray = todos.filter(todo => todo.id != e.target.parentElement.id);
-                setArray(filteredArray);
-        })
-    })
-}
-
-input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.target.value.trim().length !== 0) {
-        let newArr = [...todos, {
-                value: e.target.value,
-                completed: false,
-                id: new Date().toISOString()
-            }
-        ];
-        setArray(newArr);
-        e.target.value = '';
-    }
-})
-
-allCompletedBtn.addEventListener('click', () => {
-    if(isAllTodosCompleted) {
-        allCompletedBtn.classList.remove('dark-opacity');
-        setArray(todos.map(item => {
-            return { ...item, completed: false}
-        }))
-    } else {
-        allCompletedBtn.classList.add('dark-opacity');
-        setArray(todos.map(item => {
-            return { ...item, completed: true}
-        }))
-    }     
-})
 
 function filteredArray() {
     if(type === 'completed') {
@@ -137,8 +128,24 @@ function setType(newType) {
 }
 
 clearCompleted.addEventListener('click', () => {
-    setArray(todos.filter(item => item.completed !== true));
+    setTodosArray(todos.filter(item => item.completed !== true));
 });
+
+function checkIsAllCompleted() {
+    allCompletedBtn.classList[isAllTodosCompleted ? "add" : 'remove']('dark-opacity');
+}
+
+allCompletedBtn.addEventListener('click', () => {
+    if(isAllTodosCompleted) {
+        setTodosArray(todos.map(item => {
+            return { ...item, completed: false}
+        }))
+    } else {
+        setTodosArray(todos.map(item => {
+            return { ...item, completed: true}
+        }))
+    }     
+})
 
 const updateCounter = () => {
     let activeTodos = todos.filter(item => item.completed === false);
@@ -149,18 +156,57 @@ const updateCounter = () => {
 
 function displayElements() {
     if (todos.length) {
-        footer.style.display = 'block';
-        allCompletedBtn.style.display = 'block'
+        footer.classList.add('block');
+        allCompletedBtn.classList.add('block');
     } else {
-        footer.style.display = 'none';
-        allCompletedBtn.style.display = 'none'
+        footer.classList.remove('block');
+        allCompletedBtn.classList.remove('block');
     }
 }
 
 function showClearBtn() {
-    if(todos.every(item => item.completed === false)) {
-        clearCompleted.style.display = 'none';
+    let isTodoItemCompleted = todos.some(todoItem => todoItem.completed);
+    if(isTodoItemCompleted) {
+        clearCompleted.classList.add('inline')
+        clearCompleted.classList.remove('none');
     } else {
-        clearCompleted.style.display = 'inline-block';
+        clearCompleted.classList.add('none');
+        clearCompleted.classList.remove('inline')
     }
 }
+
+function updateTodoItem(itemId, newValue) {
+    let newTodos = todos.map(todo => {
+        if(todo.id === itemId) {
+            return {
+                ...todo, 
+                value: newValue
+            }
+        } else {
+            return todo
+        }
+    })
+    setTodosArray(newTodos);
+}
+
+function changeTodoContent(li, todoContent, item) {
+    li.innerHTML = '';
+    inputItem.classList.add('style-block');
+    inputItem.value = todoContent.textContent;
+    inputItem.setAttribute('class', 'input-edit') 
+    li.appendChild(inputItem);
+    li.classList.add('default-padding');
+    inputItem.focus();
+    inputItem.addEventListener('keydown', e => {
+        if(e.key === 'Enter') {
+            updateTodoItem(item.id, e.target.value) 
+        }
+    })
+    inputItem.addEventListener('blur', e => {
+        updateTodoItem(item.id, e.target.value) 
+    })
+}
+
+ 
+
+ 
